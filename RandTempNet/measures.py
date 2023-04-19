@@ -116,7 +116,7 @@ def activity_timeline(seq_data):
 #Computation of the contact durations
 #  lks_data (link_timeline()): object to analyse
 def contact_durations(lks_data):
-    Output = {lk:sum([c.duration for c in lks_data.data[lk]])*20 for lk in lks_data.links()}
+    Output = {lk:sum([c.duration for c in lks_data.data[lk]]) for lk in lks_data.links()}
     return Output
 #------------------------------------------
 #Computation of the intercontact durations list
