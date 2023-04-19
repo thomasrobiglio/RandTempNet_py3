@@ -116,7 +116,7 @@ def activity_timeline(seq_data):
 #Computation of the contact durations
 #  lks_data (link_timeline()): object to analyse
 def contact_durations(lks_data):
-    Output = {lk:[c.duration for c in lks_data.data[lk]] for lk in lks_data.links()}
+    Output = {lk:sum([c.duration for c in lks_data.data[lk]])*20 for lk in lks_data.links()}
     return Output
 #------------------------------------------
 #Computation of the intercontact durations list
@@ -329,7 +329,7 @@ def analysis(lks_data,dt,save=True,filename="analysis.pdf"):
     #--contact durations
     x += w + mx
     ax = fig.add_axes([x,y,w,h])
-    data = list(it.chain(*list(contact_durations(lks_data).values())))
+    data = list(contact_durations(lks_data).values())
     bins = 2.**(np.arange(0,np.log2(max(data)),0.5))
     dist = np.histogram(data,bins=bins,density=True)
     ax.loglog(bins[:-1],dist[0],'ko',mew=1.5,mfc='None')
