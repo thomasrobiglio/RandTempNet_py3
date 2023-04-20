@@ -78,6 +78,7 @@ def P__ptau(lks_data,ti,tf,dt):
     index_node = {nodes[k]:k for k in range(nN)}
     #contacts extraction with time stamps
     list_c = list(it.chain(*list(lks_data.data.values())))
+    #list_c = list((lks_data.data.values()))
     #contacts redistribution
     Output = link_timeline()
     Tl = {}
