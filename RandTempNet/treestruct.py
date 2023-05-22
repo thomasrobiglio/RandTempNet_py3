@@ -1,46 +1,49 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#------------------------------------------
-#-        Temporal Networks v2.0          -
-#-           by Mathieu GÉNOIS            -
-#-       genois.mathieu@gmail.com         -
-#-  adapted in python3 by Thomas Robiglio -
-#-       robigliothomas@gmail.com         -
-#------------------------------------------
-#Python module for handling temporal networks
-#------------------------------------------
-#==========================================
-#==========================================
-#------------------------------------------
-#Libraries
+# ------------------------------------------
+# -        Temporal Networks v2.0          -
+# -           by Mathieu GÉNOIS            -
+# -       genois.mathieu@gmail.com         -
+# -  adapted in python3 by Thomas Robiglio -
+# -       robigliothomas@gmail.com         -
+# ------------------------------------------
+# Python module for handling temporal networks
+# ------------------------------------------
+# ==========================================
+# ==========================================
+# ------------------------------------------
+# Libraries
 import networkx as nx
 import numpy as np
-#import graph_tool as gt
+
+# import graph_tool as gt
 import matplotlib.pyplot as plt
-#from graph_tool.draw import sfdp_layout,graph_draw,arf_layout
+
+# from graph_tool.draw import sfdp_layout,graph_draw,arf_layout
 from .utils import *
-#------------------------------------------
-#==========================================
-#==========================================
-#------------------------------------------
-#Computing the tree structure of a network by depercolating its links according to increasing weights
-#------------------------------------------
-#Computation of the depercolation steps according to link weight
-#-path: path to the tij file
+
+# ------------------------------------------
+# ==========================================
+# ==========================================
+# ------------------------------------------
+# Computing the tree structure of a network by depercolating its links according to increasing weights
+# ------------------------------------------
+# Computation of the depercolation steps according to link weight
+# -path: path to the tij file
 def deperc_steps_w(Gb):
-#    tij_data = read_tij(path)
-#    G = aggregate_tij(tij_data)
+    #    tij_data = read_tij(path)
+    #    G = aggregate_tij(tij_data)
     G = Gb.copy()
-    #sorting of the edges according to their weight
-    weight = nx.get_edge_attributes(G,'w')
+    # sorting of the edges according to their weight
+    weight = nx.get_edge_attributes(G, "w")
     lW = list(set(weight.values()))
     lW.sort()
-    dE = {w:[] for w in lW}
+    dE = {w: [] for w in lW}
     for e in G.edges():
         dE[weight[e]].append(e)
-    #computation of the depercolation steps
+    # computation of the depercolation steps
     nC = nx.number_connected_components(G)
-    thG,thE,thW = [],[],[]
+    thG, thE, thW = [], [], []
     for w in lW:
         prevG = G.copy()
         G.remove_edges_from(dE[w])
@@ -50,22 +53,24 @@ def deperc_steps_w(Gb):
             thG.append(prevG)
             thE.append(dE[w])
             thW.append(w)
-    return thG,thE,thW
-#------------------------------------------
-#Computation of the depercolation steps according to link centrality
-#-path: path to the tij file
+    return thG, thE, thW
+
+
+# ------------------------------------------
+# Computation of the depercolation steps according to link centrality
+# -path: path to the tij file
 def deperc_steps_bc(Gb):
     G = Gb.copy()
-    thG,thE,thC = [],[],[]
+    thG, thE, thC = [], [], []
     nC = nx.number_connected_components(G)
     while G.number_of_edges() > 0:
-        #sorting of the edges according to their centrality
+        # sorting of the edges according to their centrality
         central = nx.edge_betweenness_centrality(G)
-#        central = nx.edge_betweenness_centrality(G,weight="w")
+        #        central = nx.edge_betweenness_centrality(G,weight="w")
         lC = list(central.values())
         cmax = max(lC)
         lE = [e for e in G.edges() if central[e] == cmax]
-        #computation of the depercolation steps
+        # computation of the depercolation steps
         prevG = G.copy()
         G.remove_edges_from(lE)
         n = nx.number_connected_components(G)
@@ -73,48 +78,57 @@ def deperc_steps_bc(Gb):
             nC = n
             thG.append(prevG)
             thE.append(lE)
-            thC.append(1./cmax)
-    return thG,thE,thC
-#------------------------------------------
-#Distances within a tree
-#-thG: list of networkx Graph() objects
-#-thW: list of weights
-#-ncol: number of columns for the plot
-#-node_color: dictionary {node: int}
-#-node_shape: dictionary {node: int}
-#-edge_width: dictionary {(node,node): float}
-#-size: size of a single graph (int)
-def distances(thG,thW,name="distances.png"):
-    Tree,depth = make_tree(thG,thW)
+            thC.append(1.0 / cmax)
+    return thG, thE, thC
+
+
+# ------------------------------------------
+# Distances within a tree
+# -thG: list of networkx Graph() objects
+# -thW: list of weights
+# -ncol: number of columns for the plot
+# -node_color: dictionary {node: int}
+# -node_shape: dictionary {node: int}
+# -edge_width: dictionary {(node,node): float}
+# -size: size of a single graph (int)
+def distances(thG, thW, name="distances.png"):
+    Tree, depth = make_tree(thG, thW)
     Tree = Tree.to_undirected()
     lN = list(thG[0].nodes())
     lN.sort()
-    #finding the leaves
+    # finding the leaves
     dN = {}
     for n in Tree.nodes():
         if n > 0:
-            if len(Tree.node[n]['e']) == 1:
-                dN[Tree.node[n]['e'][0]] = n
+            if len(Tree.node[n]["e"]) == 1:
+                dN[Tree.node[n]["e"][0]] = n
     nN = len(lN)
     tab = []
     for i in range(nN):
         lDist = []
         for j in range(nN):
-            lDist.append([nx.shortest_path_length(Tree,source=dN[lN[i]],target=dN[lN[j]]),lN[j]])
+            lDist.append(
+                [
+                    nx.shortest_path_length(Tree, source=dN[lN[i]], target=dN[lN[j]]),
+                    lN[j],
+                ]
+            )
         lDist.sort()
-        l1,l2 = list(zip(*lDist))
+        l1, l2 = list(zip(*lDist))
         tab.append(l2)
         tab.append(l1)
-    np.savetxt(name,tab,fmt = "%d",delimiter = "\t")
-#------------------------------------------
-#Plot of the graph steps
-#-thG: list of networkx Graph() objects
-#-thE: list of edge lists
-#-ncol: number of columns for the plot
-#-node_color: dictionary {node: int}
-#-node_shape: dictionary {node: int}
-#-edge_width: dictionary {(node,node): float}
-#-size: size of a single graph (int)
+    np.savetxt(name, tab, fmt="%d", delimiter="\t")
+
+
+# ------------------------------------------
+# Plot of the graph steps
+# -thG: list of networkx Graph() objects
+# -thE: list of edge lists
+# -ncol: number of columns for the plot
+# -node_color: dictionary {node: int}
+# -node_shape: dictionary {node: int}
+# -edge_width: dictionary {(node,node): float}
+# -size: size of a single graph (int)
 """
 def plot_graph_steps(thG,thE,name="graph_steps.pdf",ncol=5,node_color={},node_shape={},edge_width={},size=2):
     plt.switch_backend('cairo')
@@ -183,78 +197,86 @@ def plot_graph_steps(thG,thE,name="graph_steps.pdf",ncol=5,node_color={},node_sh
     plt.savefig(name)
 #------------------------------------------
 """
-def make_tree(thG,thW):
+
+
+def make_tree(thG, thW):
     Tree = nx.DiGraph()
-    Tree.add_node(-1,w=0,e=[-1],x=0,corner=[0,0])
-    Tree.add_node(0,w=0,e=list(thG[0].nodes()))
-    Tree.add_edge(-1,0)
+    Tree.add_node(-1, w=0, e=[-1], x=0, corner=[0, 0])
+    Tree.add_node(0, w=0, e=list(thG[0].nodes()))
+    Tree.add_edge(-1, 0)
     active_N = [0]
     k = 1
     w0 = max(thW) + 10
-    #boucle sur les steps
-    for i,G in enumerate(thG[1:]):
+    # boucle sur les steps
+    for i, G in enumerate(thG[1:]):
         remove_N = []
-        #boucle sur les composantes de chaque step
+        # boucle sur les composantes de chaque step
         for subG in nx.connected_components(G):
-            #boucle sur les Nodes pendants
+            # boucle sur les Nodes pendants
             for N in active_N:
-                #test d'inclusion des noeuds du composant dans N
+                # test d'inclusion des noeuds du composant dans N
                 test = np.array([p in Tree.node[N]["e"] for p in subG])
                 if test.all():
-                    #test d'égalité des sets
+                    # test d'égalité des sets
                     if len(subG) < len(Tree.node[N]["e"]):
-                        #test de leaf
+                        # test de leaf
                         if len(subG) == 1:
-                            Tree.add_node(k,w=w0,e=list(subG))
+                            Tree.add_node(k, w=w0, e=list(subG))
                         else:
-                            Tree.add_node(k,w=0,e=list(subG))
+                            Tree.add_node(k, w=0, e=list(subG))
                             active_N.append(k)
                         Tree.node()[N]["w"] = thW[i]
-                        Tree.add_edge(N,k)
+                        Tree.add_edge(N, k)
                         remove_N.append(N)
-                        k+=1
+                        k += 1
         remove_N = set(remove_N)
         for N in remove_N:
             active_N.remove(N)
-    #ajout des leaves
+    # ajout des leaves
     for n in thG[0].nodes():
-        #boucle sur les Nodes pendants
+        # boucle sur les Nodes pendants
         for N in active_N:
-            #test d'appartenance à N
+            # test d'appartenance à N
             if n in Tree.node[N]["e"]:
-                Tree.add_node(k,w=w0,e=[n])
-                Tree.add_edge(N,k)
+                Tree.add_node(k, w=w0, e=[n])
+                Tree.add_edge(N, k)
                 Tree.node()[N]["w"] = thW[-1]
-                k+=1
+                k += 1
 
     depth = set_depth(Tree)
-    
-    return Tree,depth
-#------------------------------------------
+
+    return Tree, depth
+
+
+# ------------------------------------------
 def set_depth(Tree):
     depth = 0
     to_treat = [0]
     while to_treat != []:
         n = to_treat.pop()
         Tree.node()[n]["x"] = depth
-        Tree.node()[n]["corner"] = [depth,Tree.node()[n]["w"]]
+        Tree.node()[n]["corner"] = [depth, Tree.node()[n]["w"]]
         suiv = list(Tree.successors(n))
-        #cas d'une fin de branche -> increment de depth
+        # cas d'une fin de branche -> increment de depth
         if suiv == []:
             depth += 1
-        #sinon -> ajout des nouveaux noeuds a traiter
+        # sinon -> ajout des nouveaux noeuds a traiter
         else:
             # tri par taille du groupe
-            suiv = sorted(suiv,key=lambda x:len(Tree.node[x]["e"]))
+            suiv = sorted(suiv, key=lambda x: len(Tree.node[x]["e"]))
             to_treat += suiv
     return depth
-#------------------------------------------
-def find_ta(thG,thW,n_ta): 
-    for i,G in enumerate(thG):
+
+
+# ------------------------------------------
+def find_ta(thG, thW, n_ta):
+    for i, G in enumerate(thG):
         for subG in nx.connected_components(G):
             if list(subG) == [n_ta]:
-                return thW[i-1]
-#------------------------------------------
+                return thW[i - 1]
+
+
+# ------------------------------------------
 """
 #Plot of the tree structure
 def plot_tree(thG,thW,name,n_ta=-1):
