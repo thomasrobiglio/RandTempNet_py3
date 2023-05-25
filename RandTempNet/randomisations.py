@@ -79,7 +79,7 @@ def P__ptau(lks_data, ti, tf, dt):
     # nodes extraction
     nodes = list(set().union(*[lk.display() for lk in list_lk]))
     nN = len(nodes)
-    index_node = {nodes[k]: k for k in range(nN)}
+    {nodes[k]: k for k in range(nN)}
     # contacts extraction with time stamps
     list_c = list(it.chain(*list(lks_data.data.values())))
     # list_c = list((lks_data.data.values()))
@@ -322,7 +322,7 @@ def P__k_pTheta_sigma_SigmaL(lks_data, group, n_iter=3):
     # extraction of the timelines
     list_timeline = [[c.display() for c in lks_data.data[lk]] for lk in list_links]
     # copy of the original adjacency matrix
-    A_init = deepcopy(A.reshape(-1))
+    deepcopy(A.reshape(-1))
     # permutations
     for iteration in range(n_iter * nL):
         # choice of the first link
@@ -820,7 +820,7 @@ def P__d(seq_data, link_threshold=20, n_iter=5):
                 redo = False
                 # link permutation
                 list_nodes = nodes[:]
-                k_loc = deepcopy(deg)
+                deepcopy(deg)
                 while list_nodes != []:
                     n = list_nodes.pop()
                     # test of solvable finalisation of the reconstruction
@@ -934,7 +934,7 @@ def P__pttau(lks_data, dt):
     # nodes extraction
     nodes = list(set().union(*[lk.display() for lk in list_lk]))
     nN = len(nodes)
-    index_node = {nodes[k]: k for k in range(nN)}
+    {nodes[k]: k for k in range(nN)}
     # contacts extraction with time stamps
     list_c = list(it.chain(*list(lks_data.data.values())))
     # contacts redistribution

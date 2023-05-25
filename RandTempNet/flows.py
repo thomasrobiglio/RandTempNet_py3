@@ -13,9 +13,7 @@
 # ==========================================
 # ------------------------------------------
 # Libraries
-from sys import argv
 from glob import glob
-from copy import deepcopy
 from math import ceil
 import numpy as np
 import networkx as nx

@@ -17,7 +17,6 @@ import networkx as nx
 import numpy as np
 
 # import graph_tool as gt
-import matplotlib.pyplot as plt
 
 # from graph_tool.draw import sfdp_layout,graph_draw,arf_layout
 from .utils import *

@@ -80,7 +80,7 @@ def LCM(list_lk, group):
 def WCM(list_lk, weights, group):
     # construction of the groups of nodes
     group_label = list(set(group.values()))
-    group_count = [list(group.values()).count(lbl) for lbl in group_label]
+    [list(group.values()).count(lbl) for lbl in group_label]
     nG = len(group_label)
     Output = np.zeros((nG, nG))
     Norm = np.zeros((nG, nG))
@@ -269,7 +269,7 @@ def analysis(lks_data, dt, save=True, filename="analysis.pdf"):
     xo = 0.03
     xf = 0.03
     yo = r * xo
-    yf = r * xf
+    r * xf
     mx = 0.03
     my = r * mx
     w = (1.0 - xo - xf - (nX - 1) * mx) / nX
